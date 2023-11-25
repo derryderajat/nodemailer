@@ -43,7 +43,14 @@ const register = async (userData) => {
     const emailIsExists = await findOne({ email: userData.email });
     // console.log(usernameIsExists, emailIsExists);
     if (emailIsExists) {
-      throw new DuplicateError("Data already exists");
+      if (emailIsExists.is_verified) {
+        throw new DuplicateError("Data already exists");
+      }
+      return {
+        id: emailIsExists.id,
+        email: emailIsExists.email,
+        is_verified: emailIsExists.is_verified,
+      };
     }
   } catch (error) {
     console.log(error);
@@ -186,6 +193,40 @@ const changePassword = async (email, oldPassword, newPassword) => {
     throw error;
   }
 };
+const forgotPasswordService = async (email, newPassword) => {
+  try {
+    const isUserExists = await findOne({ email: email });
+
+    const passwordSchema = Joi.object({
+      password: Joi.string()
+        .min(6)
+        .regex(/(?=.*[a-z])/)
+        .regex(/(?=.*[A-Z])/)
+        .regex(/(?=.*\d)/)
+        .required(),
+    });
+
+    // validating user input
+    try {
+      await passwordSchema.validateAsync({ password: newPassword });
+    } catch (validationError) {
+      throw new BadRequestError(validationError.message);
+    }
+    if (isUserExists) {
+      const passwordHasher = new PasswordHasher();
+      const hashedPassword = await passwordHasher.hashPassword(newPassword);
+      const userData = {
+        email: email,
+        password: hashedPassword,
+      };
+      const updatedUser = await updateUser(userData);
+
+      return { message: "Reset Password is sucess" };
+    }
+  } catch (error) {
+    throw error;
+  }
+};
 
 const updateProfileUser = async (dataUser) => {
   // const user = await findOne({ email: dataUser.email });
@@ -213,4 +254,5 @@ module.exports = {
   signinUser,
   changePassword,
   updateProfileUser,
+  forgotPasswordService,
 };

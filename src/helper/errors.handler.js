@@ -7,7 +7,7 @@ const {
   InternalServerError,
   TooManyRequestsError,
 } = require("../utils/errors");
-
+const Sentry = require("../libs/sentry");
 const handleErrors = (res, error) => {
   if (error instanceof NotAuthenticatedError) {
     // Respons untuk kesalahan Not Authenticated
@@ -46,7 +46,7 @@ const handleErrors = (res, error) => {
     return;
   } else if (error instanceof InternalServerError) {
     // Respons untuk kesalahan Internal Server Error
-
+    Sentry.captureException(error);
     res.status(error.statusCode).json({
       status: "error",
       message: error.message,

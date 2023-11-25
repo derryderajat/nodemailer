@@ -1,4 +1,5 @@
 const nodemailer = require("nodemailer");
+const { InternalServerError } = require("../../utils/errors");
 require("dotenv").config();
 const { SERVICE_MAIL, SENDER_MAIL, SENDER_MAIL_PW } = process.env;
 
@@ -12,16 +13,15 @@ const transporter = nodemailer.createTransport({
   },
 });
 
-const forgetPassword = async (to, newPassword) => {
+const forgotPassword = async (to, url_reset_password) => {
   const mailOptions = {
     from: SENDER_MAIL,
     to: to,
-    subject: "Your New Password",
+    subject: "Request Reset Password",
     html: `
         <p>Hello!</p>
-        <p>We received a request to change your password. Your new password is:</p>
-        <strong>${newPassword}</strong>
-        <p>Please log in with your new password and consider changing it to a more secure one.</p>
+        <p>We received a request to change your password. To reset your password, please click on the link below:</p>
+        <a href="${url_reset_password}" style="display: inline-block; margin-top: 10px; padding: 10px 20px; background-color: #4CAF50; color: white; text-decoration: none; border-radius: 5px;">Reset Password</a>
         <p>If you didn't make this request, you can ignore this email.</p>
         <p>Thank you!</p>
       `,
@@ -33,7 +33,7 @@ const forgetPassword = async (to, newPassword) => {
     return true;
   } catch (error) {
     console.error(error);
-    return false;
+    throw new InternalServerError(message.error);
   }
 };
 
@@ -89,12 +89,11 @@ const notifPasswordChanged = async (email) => {
   const mailOptions = {
     from: SENDER_MAIL,
     to: email,
-    subject: "Password Changed Successfully on cobainmailer",
+    subject: "Password Successfully Updated",
     html: `
         <p>Congratulations!</p>
-        <p>Your password on cobainmailer has been successfully changed.</p>
+        <p>Your password on cobainmailer has been successfully updated.</p>
         <p>You can continue using our link shortening services:</p>
-        <a href="https://cobainmailer.com">cobainmailer - Shorten Your Links</a>
         <p>If you have any questions or need assistance, feel free to contact us.</p>
         <p>Thank you for choosing cobainmailer!</p>
       `,
@@ -111,7 +110,7 @@ const notifPasswordChanged = async (email) => {
 };
 
 module.exports = {
-  forgetPassword,
+  forgotPassword,
   welcomeNewUser,
   congratsUserActivation,
   notifPasswordChanged,

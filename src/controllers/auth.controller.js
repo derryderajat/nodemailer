@@ -15,7 +15,9 @@ router.post("/auth/register", async (req, res) => {
     )}/api/v1/activation/${userData.email}`;
     // send notification
     if (newUser) {
-      await welcomeNewUser(newUser.email, activationLink);
+      if (!newUser.is_verified) {
+        await welcomeNewUser(newUser.email, activationLink);
+      }
     }
     return;
   } catch (error) {

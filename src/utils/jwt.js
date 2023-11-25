@@ -2,9 +2,9 @@ const jwt = require("jsonwebtoken");
 const { NotAuthenticatedError } = require("./errors");
 const { JWT_SECRET_KEY } = process.env;
 const createToken = async (payload) => {
-  const tokenExpiration = 24 * 60 * 60;
+  const token_1d_expired = 24 * 60 * 60;
   let token = jwt.sign(payload, process.env.JWT_SECRET_KEY, {
-    expiresIn: tokenExpiration,
+    expiresIn: token_1d_expired,
     algorithm: "HS256",
   });
   return token;
