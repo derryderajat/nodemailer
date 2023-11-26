@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login Page</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f4f4f4;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+        }
+
+        .login-container {
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            width: 300px;
+            text-align: center;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        label {
+            display: block;
+            text-align: left;
+            margin-bottom: 5px;
+        }
+
+        input {
+            width: 100%;
+            padding: 8px;
+            box-sizing: border-box;
+            margin-bottom: 10px;
+        }
+
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 15px;
+        }
+
+        button {
+            background-color: #4caf50;
+            color: #fff;
+            padding: 10px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .forgot-password {
+            color: #007bff;
+            text-decoration: none;
+            display: block;
+            margin-top: 10px;
+        }
+        #show-password {
+            display: flex;
+            align-items: center;
+            margin-bottom: 16px;
+            align-content: center;
+        }
+
+        #checkbox-password {
+            width: 40px;
+        }
+
+        #showPasswordCheckbox {
+            margin-right: 8px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="login-container">
+    <h2>Login</h2>
+    <form action="/api/v1/auth/login" method="post" autocomplete="off">
+        <div class="form-group">
+            <label for="email">Email:</label>
+            <input type="email" id="email" name="email" required aautocomplete="off">
+        </div>
+        <div class="form-group">
+            <label for="password">Password:</label>
+            <input type="password" id="password" name="password" placeholder="Enter new password" required autocomplete="new-password">
+        </div>
+        <div id="show-password">
+            <div id="checkbox-password">
+                <input type="checkbox" id="showPasswordCheckbox" onclick="togglePasswordVisibility()"> 
+            </div>
+            <label for="showPasswordCheckbox">Show password</label>
+        </div>
+        <button type="submit">Login</button>
+    </form>
+    <a href="/forgot-password" class="forgot-password">Forgot Password?</a>
+</div>
+
+   <script>
+        function togglePasswordVisibility() {
+           const passwordInput = document.getElementById('password');
+            const showPasswordCheckbox = document.getElementById('showPasswordCheckbox');
+            passwordInput.type = showPasswordCheckbox.checked ? 'text' : 'password';
+        }
+    </script>
+</body>
+</html>

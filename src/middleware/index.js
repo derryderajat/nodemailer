@@ -3,6 +3,7 @@ const { findOne } = require("../repositories/user.repository");
 const {
   NotAuthenticatedError,
   NotAuthorizedError,
+  BadRequestError,
 } = require("../utils/errors");
 const { verifyToken, createToken } = require("../utils/jwt");
 
@@ -37,6 +38,8 @@ const emailExists = async (req, res, next) => {
       req.token = token;
 
       next();
+    }else{
+      throw new BadRequestError("Email is not registered")
     }
   } catch (error) {
     handleErrors(res, error);

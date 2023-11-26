@@ -12,6 +12,7 @@ const {
 const { BadRequestError, NotAuthenticatedError } = require("../utils/errors");
 const path = require("path");
 const { verifyToken } = require("../utils/jwt");
+const limiter = require("../libs/limiter/request_reset_password");
 /**
  * USERS ROUTE
  */
@@ -56,24 +57,29 @@ router.patch("/user/update-profile", [isAuthenticate], async (req, res) => {
   }
   return;
 });
-const resetTokens = new Map();
-router.post("/user/forgot-password", [emailExists], async (req, res) => {
-  const token = req.token;
-  const { email } = req.body;
-  const resetLink = `${req.protocol}://${req.get(
-    "host"
-  )}/api/v1/user/reset-password?token=${token}&email=${encodeURIComponent(
-    email
-  )}`;
+router.post(
+  "/user/forgot-password",
+  [emailExists, limiter],
+  async (req, res) => {
+    console.log("Request reached the rate limiter middleware");
+    console.log("Rate limiter response:", req.rateLimit);
+    const token = req.token;
+    const { email } = req.body;
+    const resetLink = `${req.protocol}://${req.get(
+      "host"
+    )}/api/v1/user/reset-password?token=${token}&email=${encodeURIComponent(
+      email
+    )}`;
 
-  try {
-    res.status(200).send("Password reset link sent to your email.");
-    await forgotPassword(email, resetLink);
-    return;
-  } catch (error) {
-    handleErrors(res, error);
+    try {
+      res.status(200).send("Password reset link sent to your email.");
+      await forgotPassword(email, resetLink);
+      return;
+    } catch (error) {
+      handleErrors(res, error);
+    }
   }
-});
+);
 
 router.get("/user/reset-password", (req, res) => {
   const { email, token } = req.query;

@@ -106,11 +106,15 @@ const signinUser = async (email, password) => {
       name: user.name,
     };
     // 1 day expired
-
-    let token = await createToken(payload);
-    return { access_token: token, data: payload };
+    let token;
+    try {
+      token = await createToken(payload);
+    } catch (error) {
+      throw new InternalServerError(error.message);
+    }
+    return { access_token: token};
   } catch (error) {
-    throw new InternalServerError(error.message);
+    throw error;
   }
 };
 const activateUserAccount = async (email) => {
