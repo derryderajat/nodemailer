@@ -1,5 +1,5 @@
 const { userModel } = require("../models");
-const { InternalServerError } = require("../utils/errors");
+const { InternalServerError, NotFoundError } = require("../utils/errors");
 
 const findAll = async () => {
   try {
@@ -10,14 +10,10 @@ const findAll = async () => {
   }
 };
 const findOne = async (params) => {
-  try {
-    const user = await userModel.findFirst({
-      where: params,
-    });
-    return user;
-  } catch (error) {
-    throw new InternalServerError("User is not found");
-  }
+  const user = await userModel.findFirst({
+    where: params,
+  });
+  return user;
 };
 const countUsers = async () => {
   try {
@@ -50,8 +46,20 @@ const updateUser = async (userData) => {
     throw new InternalServerError(error.message);
   }
 };
-
+const broadCastPromo = async () => {
+  try {
+    const users = await userModel.findMany({
+      where: {
+        role: "USER",
+      },
+    });
+    return users;
+  } catch (error) {
+    throw NotFoundError("Users is not found");
+  }
+};
 module.exports = {
+  broadCastPromo,
   findAll,
   findOne,
   insertOne,

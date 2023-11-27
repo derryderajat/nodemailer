@@ -5,6 +5,7 @@ const {
   updateUser,
   findAll,
   findOne,
+  broadCastPromo,
 } = require("../repositories/user.repository");
 const Joi = require("joi");
 const {
@@ -31,6 +32,7 @@ const register = async (userData) => {
     umur: Joi.number().required(),
     dob: Joi.date(),
     profile_picture: Joi.string().allow(""),
+    role: Joi.string(),
   });
   // validating user input
   try {
@@ -41,7 +43,7 @@ const register = async (userData) => {
   }
   try {
     const emailIsExists = await findOne({ email: userData.email });
-    // console.log(usernameIsExists, emailIsExists);
+    console.log("emailIsExists", emailIsExists);
     if (emailIsExists) {
       if (emailIsExists.is_verified) {
         throw new DuplicateError("Data already exists");
@@ -56,13 +58,19 @@ const register = async (userData) => {
     console.log(error);
     throw error;
   }
-
+  const formatDate = (dob) => {
+    const date = new Date(dob);
+    const isoDate = date.toISOString().split("T")[0]; // Get only the date part
+    return isoDate;
+  };
   try {
     const passwordHasher = new PasswordHasher();
     const hashedPassword = await passwordHasher.hashPassword(userData.password);
     userData.password = hashedPassword;
     // change format date
-
+    // const new_dob = formatDate(userData.dob);
+    userData.dob = new Date(userData.dob);
+    console.log(userData.dob);
     const newUser = await insertOne(userData);
 
     const userPreview = {
@@ -104,6 +112,7 @@ const signinUser = async (email, password) => {
       id: user.id,
       email: user.email,
       name: user.name,
+      role: user.role,
     };
     // 1 day expired
     let token;
@@ -112,7 +121,7 @@ const signinUser = async (email, password) => {
     } catch (error) {
       throw new InternalServerError(error.message);
     }
-    return { access_token: token};
+    return { access_token: token };
   } catch (error) {
     throw error;
   }

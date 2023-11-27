@@ -19,10 +19,15 @@ io.on("connection", (socket) => {
     const validation = validatePassword(password);
     socket.emit("passwordValidationResult", validation);
   });
+  setTimeout(() => {
+    socket.emit("id-1", { message: "GOKIL LOGIN" });
+    console.log("NOTIFF");
+  }, 2000);
+
   socket.on("forgotPasswordRequest", (data) => {
-    // console.log("server");
     handleForgotPasswordRequest(data.email, socket);
   });
+
   socket.on("disconnect", () => {
     console.log("User disconnected");
   });
@@ -82,8 +87,10 @@ function validatePassword(password) {
 }
 
 app.get("/", (req, res) => {
-  res.json({ message: "go" });
+  res.sendFile(path.join(process.cwd(), "coba.html"));
 });
+
+
 app.get("/login", (req, res) => {
   res.sendFile(path.join(process.cwd(), "login.html"));
 });

@@ -38,27 +38,24 @@ const emailExists = async (req, res, next) => {
       req.token = token;
 
       next();
-    }else{
-      throw new BadRequestError("Email is not registered")
+    } else {
+      throw new BadRequestError("Email is not registered");
     }
   } catch (error) {
     handleErrors(res, error);
   }
 };
-// const isAuthorize = async (req, res, next) => {
-//   // take from auth
-//   const { email } = await req.user;
 
-//   const isUsernameSame = username === req.params.username;
-//   if (!isUsernameSame) {
-//     handleErrors(res, new NotAuthorizedError("You are not allowed doing this"));
-//     return;
-//   }
-//   next();
-// };
+const isAdmin = async (req, res, next) => {
+  if (req.user.role !== "ADMIN") {
+    throw new NotAuthorizedError("You are not allowed to do broadcast");
+  }
+  next();
+};
 module.exports = {
   isAuthenticate,
   emailExists,
+  isAdmin,
   // isAuthorize,
   // isUserAvail,
   // isCurrentPassCorrect,

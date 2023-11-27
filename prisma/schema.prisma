@@ -20,10 +20,11 @@ model Users {
   password String
   name String
   umur Int
-  dob DateTime
+  dob DateTime @db.Date
   profile_picture String?
   is_verified Boolean @default(false)
   created_at DateTime  @default(now())
   updated_at DateTime  @default(now()) @updatedAt
   deleted_at DateTime?
+  role Role @default(USER)
 }

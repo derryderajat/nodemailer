@@ -109,7 +109,34 @@ const notifPasswordChanged = async (email) => {
   }
 };
 
+
+const sendPromo = async (emails, message) => {
+  const mailOptions = {
+    from: SENDER_MAIL,
+    to: emails.join(", "),
+    subject: "Special Promotion!",
+    text: message,
+    html: `
+    <p>Dear customer,</p>
+    <p>We are excited to announce a special promotion just for you!</p>
+    <p>${message}</p>
+    <p>Don't miss out on this fantastic opportunity. Visit our website or store to take advantage of the promotion now!</p>
+    <p>Thank you for choosing ${SENDER_MAIL}.</p>
+    <p>Best regards,<br>Your Company</p>
+  `,
+  };
+
+  try {
+    const info = await transporter.sendMail(mailOptions);
+    console.log("Promotional email sent:", info.response);
+    return { status: "success", info };
+  } catch (error) {
+    console.error("Error sending promotional email:", error);
+    return { status: "error", error };
+  }
+};
 module.exports = {
+  sendPromo,
   forgotPassword,
   welcomeNewUser,
   congratsUserActivation,
