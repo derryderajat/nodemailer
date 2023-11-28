@@ -101,12 +101,14 @@ router.get("/user/reset-password", (req, res) => {
   // Check if the token is valid
   try {
     if (!isLinkValid) {
-      res.sendFile(path.join(process.cwd(), "error-reset-password.html"));
+      res.sendFile(
+        path.join(process.cwd(), "layout", "error-reset-password.html")
+      );
       // throw new NotAuthenticatedError("Invalid or expired token");
       return;
     }
 
-    res.sendFile(path.join(process.cwd(), "reset-password.html"));
+    res.sendFile(path.join(process.cwd(), "layout", "reset-password.html"));
     return;
   } catch (error) {
     handleErrors(res, error);
@@ -119,7 +121,9 @@ router.post("/user/reset-password", async (req, res) => {
   try {
     if (Token.email !== email) throw BadRequestError("Reset Link is Invalid");
     const resetPassword = await forgotPasswordService(email, newPassword);
-    res.sendFile(path.join(process.cwd(), "success-reset-password.html"));
+    res.sendFile(
+      path.join(process.cwd(), "layout", "success-reset-password.html")
+    );
     if (resetPassword) {
       await notifPasswordChanged(email);
     }

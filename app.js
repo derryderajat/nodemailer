@@ -11,19 +11,28 @@ app.use(express.static(path.join(__dirname, "public")));
 dotenv.config();
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
+const cors = require("cors");
+app.use(cors());
 
 io.on("connection", (socket) => {
   console.log("A user connected");
 
+  socket.on("chat123", (data) => {
+    io.sockets.emit("chat", data);
+  });
+  const to_client = "AAJOJ2109";
+  const from_client = "BBBpwk1-01jpw";
+  socket.on(to_client, (data) => {
+    // console.log(data);
+    const message = "Welcome";
+    io.emit(from_client, message);
+  });
+
+  // ===================
   socket.on("checkPassword", (password) => {
     const validation = validatePassword(password);
     socket.emit("passwordValidationResult", validation);
   });
-  setTimeout(() => {
-    socket.emit("id-1", { message: "GOKIL LOGIN" });
-    console.log("NOTIFF");
-  }, 2000);
-
   socket.on("forgotPasswordRequest", (data) => {
     handleForgotPasswordRequest(data.email, socket);
   });
@@ -87,15 +96,14 @@ function validatePassword(password) {
 }
 
 app.get("/", (req, res) => {
-  res.sendFile(path.join(process.cwd(), "coba.html"));
+  res.sendFile(path.join(process.cwd(), "layout", "coba.html"));
 });
-
 
 app.get("/login", (req, res) => {
-  res.sendFile(path.join(process.cwd(), "login.html"));
+  res.sendFile(path.join(process.cwd(), "layout", "login.html"));
 });
 app.get("/forgot-password", (req, res) => {
-  res.sendFile(path.join(process.cwd(), "forgot-password.html"));
+  res.sendFile(path.join(process.cwd(), "layout", "forgot-password.html"));
 });
 app.get("/ping", (req, res) => {
   res.json({ message: "pong" });
@@ -109,7 +117,7 @@ app.use("/api", v1_router);
 
 const PORT = process.env.PORT || 3000;
 if (process.env.NODE_ENV !== "test") {
-  http.listen(PORT, () => {
+  http.listen(PORT, "127.0.0.1", () => {
     console.log(`Server is running on port:${PORT}`);
   });
 }

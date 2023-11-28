@@ -1,5 +1,10 @@
 const nodemailer = require("nodemailer");
 const { InternalServerError } = require("../../utils/errors");
+const {
+  welcomeHTML,
+  passwordChangedHTML,
+  promoHTML,
+} = require("./template.body.mail");
 require("dotenv").config();
 const { SERVICE_MAIL, SENDER_MAIL, SENDER_MAIL_PW } = process.env;
 
@@ -42,13 +47,7 @@ const welcomeNewUser = async (email, activationLink) => {
     from: SENDER_MAIL,
     to: email,
     subject: "Welcome to cobainmailer - Activate Your Account",
-    html: `
-        <p>Welcome to cobainmailer!</p>
-        <p>Congratulations on joining our community. To activate your account, please click the following link:</p>
-        <a href="${activationLink}">Activate Account</a>
-        <p>If you didn't sign up for cobainmailer, you can ignore this email.</p>
-        <p>Thank you and enjoy using cobainmailer!</p>
-      `,
+    html: welcomeHTML(activationLink),
   };
 
   try {
@@ -66,13 +65,7 @@ const congratsUserActivation = async (email) => {
     from: SENDER_MAIL,
     to: email,
     subject: "Congratulations! Your cobainmailer Account is Activated",
-    html: `
-        <p>Congratulations!</p>
-        <p>Your cobainmailer account is now activated. You can start using our link shortening services:</p>
-        <a href="https://cobainmailer.com">cobainmailer - Shorten Your Links</a>
-        <p>If you have any questions or need assistance, feel free to contact us.</p>
-        <p>Thank you for choosing cobainmailer!</p>
-      `,
+    html: activationHTML(email),
   };
 
   try {
@@ -90,13 +83,7 @@ const notifPasswordChanged = async (email) => {
     from: SENDER_MAIL,
     to: email,
     subject: "Password Successfully Updated",
-    html: `
-        <p>Congratulations!</p>
-        <p>Your password on cobainmailer has been successfully updated.</p>
-        <p>You can continue using our link shortening services:</p>
-        <p>If you have any questions or need assistance, feel free to contact us.</p>
-        <p>Thank you for choosing cobainmailer!</p>
-      `,
+    html: passwordChangedHTML(email),
   };
 
   try {
@@ -109,32 +96,42 @@ const notifPasswordChanged = async (email) => {
   }
 };
 
-
 const sendPromo = async (emails, message) => {
   const mailOptions = {
     from: SENDER_MAIL,
     to: emails.join(", "),
     subject: "Special Promotion!",
     text: message,
-    html: `
-    <p>Dear customer,</p>
-    <p>We are excited to announce a special promotion just for you!</p>
-    <p>${message}</p>
-    <p>Don't miss out on this fantastic opportunity. Visit our website or store to take advantage of the promotion now!</p>
-    <p>Thank you for choosing ${SENDER_MAIL}.</p>
-    <p>Best regards,<br>Your Company</p>
-  `,
+    html: promoHTML(message, SENDER_MAIL),
   };
 
   try {
     const info = await transporter.sendMail(mailOptions);
     console.log("Promotional email sent:", info.response);
-    return { status: "success", info };
+    return true;
   } catch (error) {
     console.error("Error sending promotional email:", error);
-    return { status: "error", error };
+    return false;
   }
 };
+
+const promoBirthday = async (emails, message) => {
+  const mailOptions = {
+    from: SENDER_MAIL,
+    to: emails.join(", "),
+    subject: "Special Promotion!",
+    text: message,
+    html: promoHTML(message, SENDER_MAIL),
+  };
+
+  try {
+    const info = await transporter.sendMail(mailOptions);
+    return true;
+  } catch (error) {
+    return false;
+  }
+};
+
 module.exports = {
   sendPromo,
   forgotPassword,
